@@ -16,6 +16,10 @@ def load_data():
 
 df = load_data()
 
+# Set session state for map visibility
+if 'show_map' not in st.session_state:
+    st.session_state.show_map = False
+
 # Custom CSS styles
 st.markdown("""
     <style>
@@ -119,7 +123,6 @@ st.markdown("""
         margin-top: 3rem;
     }
 
-    /* Mobile responsiveness */
     @media (max-width: 768px) {
         .header-title {
             font-size: 2rem;
@@ -220,75 +223,86 @@ with st.container():
                         <div class="bus-info"><span>Trip Name</span><span>{row['TRIPNAME']}</span></div>
                         <div class="bus-info"><span>Departure</span><span>{row['Departure_time']}</span></div>
                         <div class="bus-info"><span>Type</span><span>{row['TYPE']}</span></div>
-                        <div class="bus-info"><span>Distance</span><span>{distance:.1f} km</span></div>
+                        <div class="bus-info"><span>Distance</span><span>
+                            <form action="" method="post">
+                                <button name="show_map_button_{idx}" type="submit" style="background:none;border:none;color:#0044cc;text-decoration:underline;cursor:pointer;">
+                                    {distance:.1f} km
+                                </button>
+                            </form>
+                        </span></div>
                     </div>
                 """, unsafe_allow_html=True)
-            st.markdown('<div class="result-info">Thanks for using Tamilvandi| Safe traveling 🚍</div>', unsafe_allow_html=True)
+
+                if f"show_map_button_{idx}" in st.session_state:
+                    st.session_state.show_map = True
+
+            st.markdown('<div class="result-info">Thanks for using Tamilvandi | Safe traveling 🚌</div>', unsafe_allow_html=True)
         else:
             st.warning("No matching buses found.")
     st.markdown('</div>', unsafe_allow_html=True)
 
-    with st.expander("🗺️ Route Map Preview", expanded=True):
-        from_coords = get_coordinates(from_selected)
-        to_coords = get_coordinates(to_selected)
+    if st.session_state.show_map:
+        with st.expander("🗺️ Route Map Preview", expanded=True):
+            from_coords = get_coordinates(from_selected)
+            to_coords = get_coordinates(to_selected)
 
-        if from_coords and to_coords:
-            route, duration, distance, via_coords = get_route(from_coords, to_coords)
+            if from_coords and to_coords:
+                route, duration, distance, via_coords = get_route(from_coords, to_coords)
 
-            if type_selected.lower() == "express":
-                duration *= 0.9
-            elif type_selected.lower() == "deluxe":
-                duration *= 0.85
+                if type_selected.lower() == "express":
+                    duration *= 0.9
+                elif type_selected.lower() == "deluxe":
+                    duration *= 0.85
 
-            if route:
-                hours = int(duration // 60)
-                minutes = int(duration % 60)
-                duration_str = f"{hours} hr {minutes} min" if hours else f"{minutes} min"
-                distance_str = f"{distance:.1f} km"
-                speed_kmph = (distance * 60) / duration
+                if route:
+                    hours = int(duration // 60)
+                    minutes = int(duration % 60)
+                    duration_str = f"{hours} hr {minutes} min" if hours else f"{minutes} min"
+                    distance_str = f"{distance:.1f} km"
+                    speed_kmph = (distance * 60) / duration
 
-                mid_lat = (from_coords[0] + to_coords[0]) / 2
-                mid_lon = (from_coords[1] + to_coords[1]) / 2
-                m = folium.Map(location=(mid_lat, mid_lon), zoom_start=8)
+                    mid_lat = (from_coords[0] + to_coords[0]) / 2
+                    mid_lon = (from_coords[1] + to_coords[1]) / 2
+                    m = folium.Map(location=(mid_lat, mid_lon), zoom_start=8)
 
-                folium.Marker(from_coords, tooltip="From", icon=folium.Icon(icon='circle', color='green')).add_to(m)
-                folium.Marker(to_coords, tooltip="To", icon=folium.Icon(icon='diamond', color='red')).add_to(m)
-                folium.PolyLine(
-                    [(coord[1], coord[0]) for coord in route],
-                    color='blue', weight=5,
-                    tooltip=f"🛣 {distance_str} | 🚀 {speed_kmph:.1f} km/h"
-                ).add_to(m)
+                    folium.Marker(from_coords, tooltip="From", icon=folium.Icon(icon='circle', color='green')).add_to(m)
+                    folium.Marker(to_coords, tooltip="To", icon=folium.Icon(icon='diamond', color='red')).add_to(m)
+                    folium.PolyLine(
+                        [(coord[1], coord[0]) for coord in route],
+                        color='blue', weight=5,
+                        tooltip=f"🛣 {distance_str} | 🚀 {speed_kmph:.1f} km/h"
+                    ).add_to(m)
 
-                st_folium(m, height=450, width=700)
+                    st_folium(m, height=450, width=700)
 
-                def remove_consecutive_duplicates(lst): 
-                    result = []
-                    prev = None
-                    for item in lst:
-                        if item != prev:
-                            result.append(item)
-                            prev = item
-                    return result
+                    def remove_consecutive_duplicates(lst): 
+                        result = []
+                        prev = None
+                        for item in lst:
+                            if item != prev:
+                                result.append(item)
+                                prev = item
+                        return result
 
-                geolocator = Nominatim(user_agent="tamilvandi-app")
-                via_names = []
-                for coord in via_coords[1:-1]:
-                    try:
-                        location = geolocator.reverse((coord[1], coord[0]), timeout=10)
-                        if location and location.address:
-                            name = location.address.split(',')[2]
-                            via_names.append(name)
-                        else:
+                    geolocator = Nominatim(user_agent="tamilvandi-app")
+                    via_names = []
+                    for coord in via_coords[1:-1]:
+                        try:
+                            location = geolocator.reverse((coord[1], coord[0]), timeout=10)
+                            if location and location.address:
+                                name = location.address.split(',')[2]
+                                via_names.append(name)
+                            else:
+                                via_names.append("Unknown")
+                        except:
                             via_names.append("Unknown")
-                    except:
-                        via_names.append("Unknown")
 
-                via_names = remove_consecutive_duplicates(via_names)
+                    via_names = remove_consecutive_duplicates(via_names)
 
-                if via_names:
-                    via_text = " → ".join(via_names)
-                    st.info(f"📏 Distance: {distance_str} | 🕓 Estimated Travel Time: {duration_str} | 🛣️ Via: {via_text}")
-                else:
-                    st.info(f"📏 Distance: {distance_str} | 🕓 Estimated Travel Time: {duration_str}")
-        else:
-            st.warning("📍 Could not find map locations for the selected cities. Try using full names like 'Tiruchirappalli' instead of 'Trichy'.")
+                    if via_names:
+                        via_text = " → ".join(via_names)
+                        st.info(f"📏 Distance: {distance_str} | 🕓 Estimated Travel Time: {duration_str} | 🛣️ Via: {via_text}")
+                    else:
+                        st.info(f"📏 Distance: {distance_str} | 🕓 Estimated Travel Time: {duration_str}")
+            else:
+                st.warning("📍 Could not find map locations for the selected cities. Try using full names like 'Tiruchirappalli' instead of 'Trichy'.")
