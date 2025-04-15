@@ -26,6 +26,7 @@ st.markdown("""
         background-color: #f7f7f7;
         margin: 0;
         padding: 0;
+        box-sizing: border-box;
     }
 
     .main-card {
@@ -117,6 +118,31 @@ st.markdown("""
         text-align: center;
         margin-top: 3rem;
     }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .header-title {
+            font-size: 2rem;
+        }
+
+        .search-button button {
+            padding: 0.6rem 2rem;
+            font-size: 1rem;
+        }
+
+        .bus-card {
+            padding: 1.2rem;
+            margin: 1rem 0;
+        }
+
+        .bus-info {
+            font-size: 1rem;
+        }
+
+        .result-info {
+            font-size: 1rem;
+        }
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -140,7 +166,6 @@ def get_coordinates(place_name):
     return None
 
 ORS_API_KEY = "5b3ce3597851110001cf6248c23f8cc930534989a8399826ae328953"
-
 
 @st.cache_data
 def get_route(start_coords, end_coords):
@@ -267,5 +292,3 @@ with st.container():
                     st.info(f"📏 Distance: {distance_str} | 🕓 Estimated Travel Time: {duration_str}")
         else:
             st.warning("📍 Could not find map locations for the selected cities. Try using full names like 'Tiruchirappalli' instead of 'Trichy'.")
-
-    st.markdown('</div>', unsafe_allow_html=True)
