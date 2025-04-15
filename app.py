@@ -22,131 +22,153 @@ if 'show_map' not in st.session_state:
 
 # Custom CSS styles
 st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
-    html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
-        background-color: #f7f7f7;
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif;
+    background-color: #f7f7f7;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.main-card {
+    background-color: #ffffff;
+    padding: 3rem 2rem;
+    border-radius: 25px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    max-width: 900px;
+    margin: auto;
+    animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.header-title {
+    text-align: center;
+    font-size: 3rem;
+    font-weight: 700;
+    color: #ff6f00;
+    margin-bottom: 2.5rem;
+}
+
+.search-button button {
+    background-color: #ff6f00;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 0.8rem 2.8rem;
+    border-radius: 30px;
+    border: none;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.search-button button:hover {
+    background-color: #e65100;
+    transform: scale(1.05);
+}
+
+.bus-card {
+    background: #fafafa;
+    padding: 1.8rem;
+    border-radius: 18px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    margin: 1.8rem 0;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.bus-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.2rem;
+    margin: 0.8rem 0;
+    color: #333;
+    flex-wrap: wrap;
+}
+
+.bus-info span {
+    width: 48%;
+    text-align: left;
+    margin-bottom: 0.4rem;
+}
+
+.bus-info span:last-child {
+    text-align: right;
+    color: #0044cc;
+    font-weight: 600;
+}
+
+.result-info {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding: 1rem 1.5rem;
+    background-color: #009688;
+    color: white;
+    border-radius: 25px;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.bus-card:hover {
+    background-color: #f4f4f4;
+    transform: scale(1.02);
+}
+
+.footer-info {
+    font-size: 0.9rem;
+    color: #009688;
+    text-align: center;
+    margin-top: 3rem;
+}
+
+@media (max-width: 768px) {
+    .header-title {
+        font-size: 2rem;
+        padding: 0 1rem;
     }
 
     .main-card {
-        background-color: #ffffff;
-        padding: 3rem 2rem;
-        border-radius: 25px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        max-width: 900px;
-        margin: auto;
-        animation: fadeIn 1s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .header-title {
-        text-align: center;
-        font-size: 3rem;
-        font-weight: 700;
-        color: #ff6f00;
-        margin-bottom: 2.5rem;
+        padding: 2rem 1rem;
     }
 
     .search-button button {
-        background-color: #ff6f00;
-        color: white;
-        font-size: 1.2rem;
-        font-weight: bold;
-        padding: 0.8rem 2.8rem;
-        border-radius: 30px;
-        border: none;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-        transition: all 0.3s ease;
-    }
-
-    .search-button button:hover {
-        background-color: #e65100;
-        transform: scale(1.05);
+        padding: 0.6rem 1.5rem;
+        font-size: 1rem;
+        width: 90%;
     }
 
     .bus-card {
-        background: #fafafa;
-        padding: 1.8rem;
-        border-radius: 18px;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-        margin: 1.8rem 0;
-        transition: all 0.3s ease;
-        text-align: center;
+        padding: 1.2rem;
+        margin: 1rem 0;
     }
 
     .bus-info {
-        display: flex;
-        justify-content: space-between;
-        font-size: 1.2rem;
-        margin: 0.8rem 0;
-        color: #333;
+        font-size: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
     }
 
-    .bus-info span:first-child {
-        font-weight: 600;
-    }
-
-    .bus-info span:last-child {
-        color: #0044cc;
-        font-weight: 600;
+    .bus-info span {
+        width: 100%;
+        text-align: left !important;
     }
 
     .result-info {
-        text-align: center;
-        margin-top: 1.5rem;
-        padding: 1rem 1.5rem;
-        background-color: #009688;
-        color: white;
-        border-radius: 25px;
-        font-weight: bold;
-        font-size: 1.2rem;
-    }
-
-    .bus-card:hover {
-        background-color: #f4f4f4;
-        transform: scale(1.02);
+        font-size: 1rem;
     }
 
     .footer-info {
-        font-size: 0.9rem;
-        color: #009688;
-        text-align: center;
-        margin-top: 3rem;
+        font-size: 0.8rem;
     }
+}
+</style>
 
-    @media (max-width: 768px) {
-        .header-title {
-            font-size: 2rem;
-        }
-
-        .search-button button {
-            padding: 0.6rem 2rem;
-            font-size: 1rem;
-        }
-
-        .bus-card {
-            padding: 1.2rem;
-            margin: 1rem 0;
-        }
-
-        .bus-info {
-            font-size: 1rem;
-        }
-
-        .result-info {
-            font-size: 1rem;
-        }
-    }
-    </style>
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="header-title">🚌 TamilVandi - Search Your Bus</div>', unsafe_allow_html=True)
