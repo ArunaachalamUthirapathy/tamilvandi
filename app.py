@@ -238,6 +238,9 @@ with st.container():
 
         if not result.empty:
             st.success(f"✅ {len(result)} buses found from {from_selected} to {to_selected}")
+            import streamlit.components.v1 as components
+            components.html("<script>window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });</script>", height=0)
+
             for idx, row in result.iterrows():
                 st.markdown(f"""
                     <div class="bus-card">
